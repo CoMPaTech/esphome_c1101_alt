@@ -29,6 +29,47 @@ switch:
     return {fansendjoin};
   switches:
     name: "FanSendJoin"
+- platform: template
+  id: update_fan_speed
+  optimistic: True
+  turn_on_action:
+    then:
+      - delay: 200ms
+      - if:
+          condition:
+              text_sensor.state: 
+                id: fanspeed
+                state: "Off"
+          then:
+            - fan.turn_off: mech_fan
+      - if:
+          condition:
+              text_sensor.state: 
+                id: fanspeed
+                state: "Low"
+          then:
+            - fan.turn_on:
+                id: mech_fan
+                speed: LOW
+      - if:
+          condition:
+              text_sensor.state: 
+                id: fanspeed
+                state: "Medium"
+          then:
+            - fan.turn_on:
+                id: mech_fan
+                speed: MEDIUM
+      - if:
+          condition:
+              text_sensor.state: 
+                id: fanspeed
+                state: "Full"
+          then:
+            - fan.turn_on:
+                id: mech_fan
+                speed: HIGH
+      - switch.turn_off: update_fan_speed
 
 output:
   - platform: custom
@@ -36,9 +77,9 @@ output:
     outputs:
       id: fanoutput
     lambda: |-
-      auto fanoutput = new FanOutput();
-      App.register_component(fanoutput);
-      return {fanoutput};
+      auto mech_fan = new FanOutput();
+      App.register_component(mech_fan);
+      return {mech_fan};
 
 text_sensor:
 - platform: custom
@@ -48,10 +89,12 @@ text_sensor:
     return {fanrecv->fanspeed};
 
   text_sensors:
-    - name: "FanSpeed"
+    name: "FanSpeed"
+    id: fanspeed
 
 fan:
   - platform: speed
     output: fanoutput
-    id: fanoutput
+    id: mech_fan
     name: "Fan"
+

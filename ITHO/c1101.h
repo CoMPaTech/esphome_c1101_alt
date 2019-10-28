@@ -20,15 +20,15 @@ bool InitRunned = false;
 class FanOutput : public Component, public FloatOutput {
   public:
     void write_state(float state) override {
-      if (state < 0.3) {
+      if (state < 0.4) {
         // low speed
         rf.sendCommand(IthoLow);
-      } else if (state < 0.6) {
+      } else if (state < 0.7) {
         // medium speed
         rf.sendCommand(IthoMedium);
       } else {
         // high speed
-        rf.sendCommand(IthoFull);
+        rf.sendCommand(IthoHigh);
       }
     }
 };
