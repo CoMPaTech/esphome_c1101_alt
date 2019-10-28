@@ -1,5 +1,9 @@
 `!!Work in progress!!`
 
+This is an alternative to `https://github.com/CoMPaTech/esphome_c1101` which should handle most things within ESPhome instead of offloading controls to HA
+
+This has no support for the timers and just one additional switch for the `join` command
+
 # ESPHome ITHO control
 Trying to get ESPHome to mimic what is comprised in
  
@@ -16,24 +20,9 @@ That machine is also ready to go as instructed per https://esphome.io/guides/get
 - Copy `itho.yaml` and `c1101h` to a directory of choice
 - Run `esphome itho.yaml run` and watch the magic happen
 - Go into HA, choose `integrations` and add your ITHO
-- If everything goes well, you'll see `sensor.fanspeed`, `sensor.fantimer` and a couple of `switch.fansend***` popping up.
-- Now include the contents of `HA_configuration.yaml` in your Home-Assitant configuration and reload HA
+- If everything goes well, you'll see the fan within HA
 - Enjoy!
 
-
-# Current status:
-
- - Sending High/Medium/Low and the Timers work
- - Reading state and indicative time (not counting down (yet) - should HA or ESPhome do that?)
-
-# Current issues:
-
- - How to have 'multiple' switches like we have multiple sensors -> for now comprised using template fan in HA
-
-# Fixed issue
-
- - Adding join command switch as requested by @danieldotnl and as well by @tomduijf
- - Adding 'fan' control in HA
 
 # Wiring schema used:
 

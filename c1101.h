@@ -11,17 +11,27 @@ bool ITHOhasPacket = false;
 Ticker ITHOticker;
 String State="Low"; // after startup it is assumed that the fan is running low
 String OldState="Low";
-int Timer=0;
 int LastIDindex = 0;
 int OldLastIDindex = 0;
 long LastPublish=0; 
 bool InitRunned = false;
 
-// Timer values for hardware timer in Fan
-#define Time1      10*60
-#define Time2      20*60
-#define Time3      30*60
 
+class FanOutput : public Component, public FloatOutput {
+  public:
+    void write_state(float state) override {
+      if (state < 0.3) {
+        // low speed
+        rf.sendCommand(IthoLow);
+      } else if (state < 0.6) {
+        // medium speed
+        rf.sendCommand(IthoMedium);
+      } else {
+        // high speed
+        rf.sendCommand(IthoFull);
+      }
+    }
+};
 
 class FanRecv : public PollingComponent {
   public:
@@ -29,8 +39,6 @@ class FanRecv : public PollingComponent {
     // Publish two sensors
     // Speed: the speed the fan is running at (depending on your model 1-2-3 or 1-2-3-4
     TextSensor *fanspeed = new TextSensor();
-    // Timer left (though this is indicative) when pressing the timer button once, twice or three times
-    TextSensor *fantimer = new TextSensor();
 
     // For now poll every 15 seconds
     FanRecv() : PollingComponent(15000) { }
@@ -46,7 +54,6 @@ class FanRecv : public PollingComponent {
 
     void update() override {
         fanspeed->publish_state(State.c_str());
-        fantimer->publish_state(String(Timer).c_str());
     }
 
 
@@ -57,97 +64,6 @@ class FanRecv : public PollingComponent {
 // send: low, medium, high, full
 //       timer 1 (10 minutes), 2 (20), 3 (30)
 // To optimize testing, reset published state immediately so you can retrigger (i.e. momentarily button press)
-class FanSendFull : public Component, public Switch {
-  public:
-
-    void write_state(bool state) override {
-      if ( state ) {
-        rf.sendCommand(IthoFull);
-        State = "High";
-        Timer = 0;
-        publish_state(!state);
-      }
-    }
-};
-
-class FanSendHigh : public Component, public Switch {
-  public:
-
-    void write_state(bool state) override {
-      if ( state ) {
-        rf.sendCommand(IthoHigh);
-        State = "High";
-        Timer = 0;
-        publish_state(!state);
-      }
-    }
-};
-
-class FanSendMedium : public Component, public Switch {
-  public:
-
-    void write_state(bool state) override {
-      if ( state ) {
-        rf.sendCommand(IthoMedium);
-        State = "Medium";
-        Timer = 0;
-        publish_state(!state);
-      }
-    }
-};
-
-class FanSendLow : public Component, public Switch {
-  public:
-
-    void write_state(bool state) override {
-      if ( state ) {
-        rf.sendCommand(IthoLow);
-        State = "Low";
-        Timer = 0;
-        publish_state(!state);
-      }
-    }
-};
-
-class FanSendIthoTimer1 : public Component, public Switch {
-  public:
-
-    void write_state(bool state) override {
-      if ( state ) {
-        rf.sendCommand(IthoTimer1);
-        State = "High";
-        Timer = Time1;
-        publish_state(!state);
-      }
-    }
-};
-
-class FanSendIthoTimer2 : public Component, public Switch {
-  public:
-
-    void write_state(bool state) override {
-      if ( state ) {
-        rf.sendCommand(IthoTimer2);
-        State = "High";
-        Timer = Time2;
-        publish_state(!state);
-      }
-    }
-};
-
-class FanSendIthoTimer3 : public Component, public Switch {
-  public:
-
-    void write_state(bool state) override {
-      if ( state ) {
-        rf.sendCommand(IthoTimer3);
-        State = "High";
-        Timer = Time3;
-        publish_state(!state);
-      }
-    }
-};
-
 class FanSendIthoJoin : public Component, public Switch {
   public:
 
@@ -155,7 +71,6 @@ class FanSendIthoJoin : public Component, public Switch {
       if ( state ) {
         rf.sendCommand(IthoJoin);
         State = "Join";
-        Timer = 0;
         publish_state(!state);
       }
     }
@@ -176,37 +91,18 @@ void ITHOcheck() {
       case IthoLow:
         ESP_LOGD("custom", "IthoLow");
         State = "Low";
-        Timer = 0;
         break;
       case IthoMedium:
         ESP_LOGD("custom", "Medium");
         State = "Medium";
-        Timer = 0;
         break;
       case IthoHigh:
         ESP_LOGD("custom", "High");
         State = "High";
-        Timer = 0;
         break;
       case IthoFull:
         ESP_LOGD("custom", "Full");
         State = "Full";
-        Timer = 0;
-        break;
-      case IthoTimer1:
-        ESP_LOGD("custom", "Timer1");
-        State = "High";
-        Timer = Time1;
-        break;
-      case IthoTimer2:
-        ESP_LOGD("custom", "Timer2");
-        State = "High";
-        Timer = Time2;
-        break;
-      case IthoTimer3:
-        ESP_LOGD("custom", "Timer3");
-        State = "High 30";
-        Timer = Time3;
         break;
       case IthoJoin:
         break;

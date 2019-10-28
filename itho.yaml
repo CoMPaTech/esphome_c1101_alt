@@ -24,77 +24,34 @@ ota:
 switch:
 - platform: custom
   lambda: |-
-    auto fansendlow = new FanSendLow();
-    App.register_component(fansendlow);
-    return {fansendlow};
-
-  switches:
-    name: "FanSendLow"
-
-- platform: custom
-  lambda: |-
-    auto fansendmedium = new FanSendMedium();
-    App.register_component(fansendmedium);
-    return {fansendmedium};
-
-  switches:
-    name: "FanSendMedium"
-
-- platform: custom
-  lambda: |-
-    auto fansendhigh = new FanSendHigh();
-    App.register_component(fansendhigh);
-    return {fansendhigh};
-
-  switches:
-    name: "FanSendHigh"
-
-- platform: custom
-  lambda: |-
-    auto fansendt1 = new FanSendIthoTimer1();
-    App.register_component(fansendt1);
-    return {fansendt1};
-
-  switches:
-    name: "FanSendTimer1"
-
-- platform: custom
-  lambda: |-
-    auto fansendt2 = new FanSendIthoTimer2();
-    App.register_component(fansendt2);
-    return {fansendt2};
-
-  switches:
-    name: "FanSendTimer2"
-
-- platform: custom
-  lambda: |-
-    auto fansendt3 = new FanSendIthoTimer3();
-    App.register_component(fansendt3);
-    return {fansendt3};
-
-  switches:
-    name: "FanSendTimer3"
-
-- platform: custom
-  lambda: |-
     auto fansendjoin = new FanSendIthoJoin();
     App.register_component(fansendjoin);
     return {fansendjoin};
   switches:
     name: "FanSendJoin"
 
-# Rinse/repeat for the timers
-# see outstanding question in c1101.h
-# on multiple switches handling
+output:
+  - platform: custom
+    type: float
+    outputs:
+      id: fanoutput
+    lambda: |-
+      auto fanoutput = new FanOutput();
+      App.register_component(fanoutput);
+      return {fanoutput};
 
 text_sensor:
 - platform: custom
   lambda: |-
     auto fanrecv = new FanRecv();
     App.register_component(fanrecv);
-    return {fanrecv->fanspeed,fanrecv->fantimer};
+    return {fanrecv->fanspeed};
 
   text_sensors:
     - name: "FanSpeed"
-    - name: "FanTimer"
+
+fan:
+  - platform: speed
+    output: fanoutput
+    id: fanoutput
+    name: "Fan"
