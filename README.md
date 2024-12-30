@@ -1,3 +1,8 @@
+# Use the external components repository instead of this old archive
+
+:no_entry::warning::no_entry: Please update your bookmarks and install using https://github.com/CoMPaTech/esphome_ct/tree/main/components/cc1101 :no_entry::alert::no_entry:
+
+# 
 `!!Work in progress!!`
 
 This is an alternative to `https://github.com/CoMPaTech/esphome_c1101` which should handle most things within ESPhome instead of offloading controls to HA
